@@ -1,6 +1,4 @@
 
-
-
 if (this.args.length == 0) {
     println "error: neither -h or strings.xml path"
     printUseage()
@@ -22,24 +20,11 @@ def generate (path) {
     // Clear file
     csvFile.bytes = []
 
-    // Read strings file --> Path should be changed
-    new File(path).getText('UTF-8').eachLine { line ->
+    def strings = new XmlSlurper().parse(path)
+    println strings.getProperty("name")
+    strings.string.each {
 
-		commentIndex = line.indexOf("<!--")
-
-        if (commentIndex < 0 && line.contains("<string name=")) {
-  
-            int idx = line.indexOf("=")
-            key = line.substring(idx+1, line.indexOf(">")).replace("\"", "")
-
-			if (line.indexOf("</string>") < 0) {
-				key = key.replace("/", "").trim()
-				value = ""
-			} else {
-            	value = line.substring(line.indexOf(">")+1, line.indexOf("</string>"))
-			}
-
-            csvFile << (key+","+value+"\n")
-        }
+        csvFile << it.@name
+        csvFile << ","+it.text()+"\n"
     }
 }
