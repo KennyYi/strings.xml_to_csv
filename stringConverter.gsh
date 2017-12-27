@@ -18,19 +18,26 @@ def printUseage() {
 
 def generate (path) {
     // Create or open file
-    def csvFile = new File("strings.csv")
+    def csvFile = new File("strings.csv").asWritable('UTF-8')
     // Clear file
     csvFile.bytes = []
 
     // Read strings file --> Path should be changed
-    //new File('/Users/kenny/Desktop/strings.xml').eachLine { line ->
-    new File(path).eachLine { line ->
+    new File(path).getText('UTF-8').eachLine { line ->
 
-        if (line.contains("<string name=")) {
-            
+		commentIndex = line.indexOf("<!--")
+
+        if (commentIndex < 0 && line.contains("<string name=")) {
+  
             int idx = line.indexOf("=")
             key = line.substring(idx+1, line.indexOf(">")).replace("\"", "")
-            value = line.substring(line.indexOf(">")+1, line.indexOf("</string>"))
+
+			if (line.indexOf("</string>") < 0) {
+				key = key.replace("/", "").trim()
+				value = ""
+			} else {
+            	value = line.substring(line.indexOf(">")+1, line.indexOf("</string>"))
+			}
 
             csvFile << (key+","+value+"\n")
         }
