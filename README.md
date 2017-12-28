@@ -2,10 +2,10 @@
 A groovy script to convert Android strings.xml resource file to csv file.
 
 How to use
-==========
-
-_> groovy stringConverter.gsh [string.xml file path]
-
+----------
+```
+$ groovy stringConverter.gsh [string.xml file path]
+```
 
 How to install Groovy
 ---------------------
