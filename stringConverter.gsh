@@ -17,21 +17,36 @@ def printUseage() {
 def generate (path) {
     // Create or open file
     def csvFile = new File("strings.csv").asWritable('UTF-8')
-    // Clear file
     csvFile.bytes = []
 
-    def strings = new XmlSlurper().parse(path)
+    def tempFile = new File('temp.xml').asWritable('UTF-8')
+    tempFile.bytes = []
+    
+    new FileInputStream(path).withReader('UTF-8') { reader ->
+        
+        reader.eachLine { String line ->
+
+            // wrap text value with "<![CDATA[]]>" for contains HTML tag inside of values.
+            if (line.contains("<string") && !line.contains("<![CDATA[")) {
+                def temp = line =~ /(\<string name="[a-z,A-Z,0-9,_]+")(.+)(\<\/string\>)/ 
+                tempFile << temp[0][1]+"><![CDATA["+temp[0][2].substring(1)+"]]>"+temp[0][3]
+            } else {
+                tempFile << line
+            }
+            
+            tempFile << "\n"
+        }
+    }
+
+    def strings = new XmlSlurper().parse(tempFile)
     println strings.getProperty("name")
     strings.string.each {
 
         csvFile << it.@name
-
         csvFile << ","
-
-        if (!it.a.isEmpty()) {
-            csvFile << "<" + it.a.name() + " href=\"" + it.a.@href + "\">" + it.a.text() + "</a>\n"
-        } else {
-            csvFile << it.text() + "\n"
-        }
+        csvFile << it.text() + "\n"
     }
+
+    // remove temporary file
+    tempFile.delete()
 }
