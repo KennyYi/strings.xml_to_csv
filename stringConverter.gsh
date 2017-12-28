@@ -25,6 +25,13 @@ def generate (path) {
     strings.string.each {
 
         csvFile << it.@name
-        csvFile << ","+it.text()+"\n"
+
+        csvFile << ","
+
+        if (!it.a.isEmpty()) {
+            csvFile << "<" + it.a.name() + " href=\"" + it.a.@href + "\">" + it.a.text() + "</a>\n"
+        } else {
+            csvFile << it.text() + "\n"
+        }
     }
 }
