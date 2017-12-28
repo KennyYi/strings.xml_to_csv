@@ -28,10 +28,8 @@ def generate (path) {
 
             // wrap text value with "<![CDATA[]]>" for contains HTML tag inside of values.
             if (line.contains("<string") && !line.contains("<![CDATA[")) {
-                // I don't know why "/(\<string name="[a-zA-Z0-9_]+">)(.+)(\<\/string\>)/" this pattern throw exception.
-                // Regex is work after remove '>' from pattern. So, temp[0][2] starts with '>'. That's why I add substring(1).
-                def temp = line =~ /(<string name="[a-zA-Z0-9_]+")(.+)(<\/string>)/ 
-                tempFile << temp[0][1]+"><![CDATA["+temp[0][2].substring(1)+"]]>"+temp[0][3]
+                def temp = line =~ /(<string name=\"[a-zA-Z0-9_]+\">)(.*)(<\/string>)/ 
+                tempFile << temp[0][1]+"<![CDATA["+temp[0][2]+"]]>"+temp[0][3]
             } else {
                 tempFile << line
             }
@@ -46,7 +44,7 @@ def generate (path) {
 
         csvFile << it.@name
         csvFile << ","
-        csvFile << it.text() + "\n"
+        csvFile << '"'+it.text() + '"'+"\n"
     }
 
     // remove temporary file
