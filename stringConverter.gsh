@@ -12,6 +12,7 @@ if (this.args.length == 0) {
         println "error: File path is missing."
         printUseage()
     } else {
+        // Default path
         def outPath = "strings.csv"
 
         if (this.args.length == 3) {
@@ -21,6 +22,7 @@ if (this.args.length == 0) {
         generate(this.args[1], true)
     }
 } else {
+    // Default path
     def outPath = "strings.csv"
 
     if (this.args.length == 2) {
