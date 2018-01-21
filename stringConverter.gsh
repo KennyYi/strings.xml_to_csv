@@ -43,18 +43,16 @@ def printUseage() {
 
 def generate (path, outPath, wrapCdata) {
 
-    println ">> generate (${path}, ${outPath}, ${wrapCdata})"
-
     // Create or open file
     if (outPath == null || outPath.isEmpty()) {
         outPath = "strings.csv"
     }
 
-    println ".... create csv file"
+    // Create target file and initialize if it was created.
     def csvFile = new File(outPath).asWritable('UTF-8')
     csvFile.bytes = []
 
-    println ".... create temp file"
+    // Create temp xml file and initialize if it was created.
     def tempFile = new File('temp.xml').asWritable('UTF-8')
     tempFile.bytes = []
     
