@@ -28,13 +28,37 @@ http://groovy-lang.org/install.html
 Example
 -------
 
-string.xml
+string.xml (source)
 
-![string.xml](./example_before.png)
+```xml
+<resources>
+    <!-- Comment -->
+    <!-- <string name="comment"></string> -->
+    <!--
+        multi
+        line
+        test
+        -->
+    <!-- multi
+        line
+        test2 -->
+    <!--
+        <string name="multi_line_comment_test_3">test line</string>
+    -->
+    <string name="blank"/>
+    <string name="blank2"></string>
+    <string name="html_test"><img src=\"source\">image</string>
+    <string name="cdata_test"><![CDATA[<img src=\'source\'>image]]></string>
+</resources>
+```
 
 
-string.csv
+string.csv (result)
 
-![string.csv](./example_after.png)
-
+```csv
+blank,""
+blank2,""
+html_test,"<img src=\"source\">image"
+cdata_test,"<img src=\'source\'>image"
+```
 

@@ -19,7 +19,7 @@ if (this.args.length == 0) {
             outPath = this.args[2]
         }
 
-        generate(this.args[1], true)
+        generate(this.args[1], outPath, true)
     }
 } else {
     // Default path
@@ -42,33 +42,61 @@ def printUseage() {
 }
 
 def generate (path, outPath, wrapCdata) {
+
+    println ">> generate (${path}, ${outPath}, ${wrapCdata})"
+
     // Create or open file
     if (outPath == null || outPath.isEmpty()) {
         outPath = "strings.csv"
     }
 
+    println ".... create csv file"
     def csvFile = new File(outPath).asWritable('UTF-8')
     csvFile.bytes = []
 
+    println ".... create temp file"
     def tempFile = new File('temp.xml').asWritable('UTF-8')
     tempFile.bytes = []
     
     new FileInputStream(path).withReader('UTF-8') { reader ->
-        
+
+        def isComment = false
+
         reader.eachLine { String line ->
 
-            // wrap text value with "<![CDATA[]]>" for contains HTML tag inside of values.
-            if (wrapCdata && line.contains("<string") && !line.contains("<![CDATA[")) {
-                def temp = line =~ /(<string name=\"[a-zA-Z0-9_]+\">)(.*)(<\/string>)/ 
-                line = temp[0][1]+"<![CDATA["+temp[0][2]+"]]>"+temp[0][3]
-            }
+            line = line.trim()
 
-            if (line.contains("string") && line.contains("&#")) {
-                def temp = line =~ /(<string name=\"[a-zA-Z0-9_]+\">)(.*)(<\/string>)/ 
-                line = temp[0][1]+"<p>"+temp[0][2]+"</p>"+temp[0][3]
+            // Check comment line
+            if (isComment) {
+                def statement = line =~ /.*?-->/
+                if (statement.size() > 0) {
+                    isComment = false
+                }
+            } else {
+                def statement = line =~ /(<!--)(.*?)(-->)/
+                if (statement.size() > 0) {
+                    // This line is a comment. Pass this line.
+                } else {
+                    statement = line =~ /<!--(.*?)/
+                    if (statement.size() > 0) {
+                        isComment = true
+                    } else {
+                        def temp = line =~ /(<string name=\"[a-zA-Z0-9_]+\">)(.*)(<\/string>)/
+                        if (temp.size() > 0) {
+                            if (wrapCdata && !line.contains("<![CDATA[")) {
+                                line = temp[0][1]+"<![CDATA["+temp[0][2]+"]]>"+temp[0][3]
+                            } else {
+                                line = temp[0][1]+"<p>"+temp[0][2]+"</p>"+temp[0][3]
+                            }
+                        } else if (line.contains("<string")) {
+                            // Empty value line. For example: <string name="blank" />
+                            temp = line =~ /<string name=\"[a-zA-Z0-9_]+\"\/>/
+                        }
+                    
+                        tempFile << line + "\n"
+                    }
+                }
             }
-            
-            tempFile << line + "\n"
         }
     }
 
