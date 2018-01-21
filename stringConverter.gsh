@@ -99,7 +99,6 @@ def generate (path, outPath, wrapCdata) {
     }
 
     def strings = new XmlSlurper().parse(tempFile)
-    println strings.getProperty("name")
     strings.string.each {
 
         csvFile << it.@name
